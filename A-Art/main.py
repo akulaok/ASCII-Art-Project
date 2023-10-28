@@ -1,15 +1,24 @@
 import cv2
 import pygame as pg
+import os
 
 
 class ArtConverter:
     """Этот клас читает изображение и создаёт новое с помощью ASCII-символов"""
-    def __init__(self, path, font_size=12):
+    def __init__(self, path, need_show, font_size):
         """Конструктор принимает на вход путь до исходного файла и размер шрифта ASCII-символов"""
+        # Проверка на наличие токого файла
+        if not os.path.isfile(path):
+            print("По данному пути ничего не найдено")
+            exit()
+        if "/" in path:
+            print("Нежелательный символ '/' в пути, заменён на '\\'")
+            path = path.replace("/", "\\")
         # Инициализация PyGame
         pg.init()
         # Путь до файла
         self.path = path
+        self.need_show = need_show
         # Имя файла
         self.file_name = path.split("\\")[-1].split(".")[0]
         # Расширение файла
@@ -67,19 +76,18 @@ class ArtConverter:
         """Этот метод запускает работу класса"""
         #  Начало рисовки
         self.draw_converted_image()
-        # Обновление изображения PyGame
-        pg.display.flip()
-        # Вечный цикл для обработки ввода пользователя
-        while True:
-            for i in pg.event.get():
-                # Обработка закрытия программы
-                if i.type == pg.QUIT:
-                    exit()
-                # Обработка нажатия клавиши "s"
-                elif i.type == pg.KEYDOWN:
-                    if i.key == pg.K_s:
-                        self.save_image()
-
-
-app = ArtConverter("images\\hk.jpg")
-app.run()
+        if self.need_show:
+            # Обновление изображения PyGame
+            pg.display.flip()
+            # Вечный цикл для обработки ввода пользователя
+            while True:
+                for i in pg.event.get():
+                    # Обработка закрытия программы
+                    if i.type == pg.QUIT:
+                        exit()
+                    # Обработка нажатия клавиши "s"
+                    elif i.type == pg.KEYDOWN:
+                        if i.key == pg.K_s:
+                            self.save_image()
+        else:
+            self.save_image()
