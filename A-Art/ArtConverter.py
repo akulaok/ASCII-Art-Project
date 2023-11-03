@@ -1,12 +1,14 @@
 import cv2
 import pygame as pg
 import os
+from AsciiSorter import AsciiSorter
 
 
 class ArtConverter:
     """Этот клас читает изображение и создаёт новое с помощью ASCII-символов"""
-    def __init__(self, path, need_show, font_size):
-        """Конструктор принимает на вход путь до исходного файла и размер шрифта ASCII-символов"""
+
+    def __init__(self, path, need_preview, font_size, ascii_palette, need_sort_palette, variable_space):
+        """Конструктор класса"""
         # Проверка на наличие токого файла
         if not os.path.isfile(path):
             print("По данному пути ничего не найдено")
@@ -18,7 +20,7 @@ class ArtConverter:
         pg.init()
         # Путь до файла
         self.path = path
-        self.need_show = need_show
+        self.need_preview = need_preview
         # Имя файла
         self.file_name = path.split("\\")[-1].split(".")[0]
         # Расширение файла
@@ -29,14 +31,25 @@ class ArtConverter:
         self.res = self.width, self.height = self.image.shape[0], self.image.shape[1]
         # Создание поля PyGame, на котором буде рисовать
         self.surface = pg.display.set_mode(self.res)
-        # Набор символов (Можно поэксперементировать)
-        self.ascii_chars = ' .,"-~+*:;!vxnm#W&8@'
+        # Палитра ascii-символов  (Можно поэксперементировать)
+        self.ascii_chars = list(ascii_palette)
+        # Обозначение пути до шрифта
+        self.font_path = r"fonts\Roboto-BoldItalic.ttf"
+        # Размер шрифта
+        self.font_size = font_size
+        # Добавление пробельного символа
+        if variable_space:
+            self.ascii_chars = [" "] + self.ascii_chars
+        # Сортировка выбранной палитры ascii-символов
+        if need_sort_palette:
+            sorter = AsciiSorter(self.font_size, self.ascii_chars)
+            self.ascii_chars = sorter.sort_ascii_chars()
         # Средство для определения, какой символ писать
-        self.ascii_coefficient = 255 // (len(self.ascii_chars) - 1)
-        # Выбор шрифта
-        self.font = pg.font.SysFont("Courier", font_size, bold=True)
+        self.ascii_coefficient = 255 // (len(self.ascii_chars))
+        # Определение шрифта для PyGame
+        self.font = pg.font.SysFont(self.font_path, self.font_size)
         # Константа, взятая, чтобы размеры изображений совпадали (Можно поэксперементировать)
-        self.char_step = int(font_size * 0.6)
+        self.char_step = int(self.font_size * 0.6)
         # Рендеринг символов, чтобы их можно было добавить в итоговое изображение
         self.rendered_ascii_chars = [self.font.render(char, False, "white") for char in self.ascii_chars]
 
@@ -60,8 +73,7 @@ class ArtConverter:
         for x in range(0, self.width, self.char_step):
             for y in range(0, self.height, self.char_step):
                 char_index = char_indices[x, y]
-                if char_index:
-                    self.surface.blit(self.rendered_ascii_chars[char_index], (x, y))
+                self.surface.blit(self.rendered_ascii_chars[char_index], (x, y))
 
     def save_image(self):
         """Этот метод сохраняет изображение"""
@@ -76,7 +88,7 @@ class ArtConverter:
         """Этот метод запускает работу класса"""
         #  Начало рисовки
         self.draw_converted_image()
-        if self.need_show:
+        if self.need_preview:
             # Обновление изображения PyGame
             pg.display.flip()
             # Вечный цикл для обработки ввода пользователя
