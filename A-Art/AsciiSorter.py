@@ -4,12 +4,12 @@ from PIL import ImageFont, ImageDraw, Image
 class AsciiSorter:
     """Этот класс предназначен для сортировки палитры ascii-символов"""
 
-    def __init__(self, font_size, ascii_palette):
+    def __init__(self, font_size, ascii_palette, font_path):
         """Конструктор класса"""
         # Палитра ascii-символов с удалением дублей (Можно поэксперементировать)
         self.ascii_chars = list(set(ascii_palette))
         # Обозначение пути до шрифта
-        self.font_path = r"fonts\Roboto-BoldItalic.ttf"
+        self.font_path = font_path
         # Размер шрифта
         self.font_size = font_size
 

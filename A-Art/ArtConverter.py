@@ -1,18 +1,22 @@
 import cv2
 import pygame as pg
 import os
+from math import ceil
 from AsciiSorter import AsciiSorter
 
 
 class ArtConverter:
     """Этот клас читает изображение и создаёт новое с помощью ASCII-символов"""
 
-    def __init__(self, path, need_preview, font_size, ascii_palette, need_sort_palette, variable_space):
+    def __init__(self, path, need_preview, font_size, ascii_palette, need_sort_palette, variable_space, font_name):
         """Конструктор класса"""
         # Проверка на наличие токого файла
-        if not os.path.isfile(path):
-            print("По данному пути ничего не найдено")
-            exit()
+        if not os.path.exists(path):
+            raise Exception("По данному пути ничего не найдено")
+        if font_size <= 0:
+            raise Exception("Размер шрифта не может быть меньше или равен нулю")
+        if not os.path.exists(f"fonts\\{font_name}.ttf"):
+            raise Exception("Шрифта с таким именем нет в каталоге")
         if "/" in path:
             print("Нежелательный символ '/' в пути, заменён на '\\'")
             path = path.replace("/", "\\")
@@ -34,7 +38,7 @@ class ArtConverter:
         # Палитра ascii-символов  (Можно поэксперементировать)
         self.ascii_chars = list(ascii_palette)
         # Обозначение пути до шрифта
-        self.font_path = r"fonts\Roboto-BoldItalic.ttf"
+        self.font_path = f"fonts\\{font_name}.ttf"
         # Размер шрифта
         self.font_size = font_size
         # Добавление пробельного символа
@@ -42,10 +46,12 @@ class ArtConverter:
             self.ascii_chars = [" "] + self.ascii_chars
         # Сортировка выбранной палитры ascii-символов
         if need_sort_palette:
-            sorter = AsciiSorter(self.font_size, self.ascii_chars)
+            sorter = AsciiSorter(self.font_size, self.ascii_chars, self.font_path)
             self.ascii_chars = sorter.sort_ascii_chars()
+        if len(list(self.ascii_chars)) >= 256:
+            raise Exception("В палитре не может быть больше 255 разных символов")
         # Средство для определения, какой символ писать
-        self.ascii_coefficient = 255 // (len(self.ascii_chars))
+        self.ascii_coefficient = ceil(255 / (len(self.ascii_chars)))
         # Определение шрифта для PyGame
         self.font = pg.font.SysFont(self.font_path, self.font_size)
         # Константа, взятая, чтобы размеры изображений совпадали (Можно поэксперементировать)
