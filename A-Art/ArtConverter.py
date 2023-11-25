@@ -8,11 +8,13 @@ from AsciiSorter import AsciiSorter
 class ArtConverter:
     """Этот клас читает изображение и создаёт новое с помощью ASCII-символов"""
 
-    def __init__(self, path, font_size, ascii_palette, need_sort_palette, variable_space, font_name):
+    def __init__(self, path, font_size, ascii_palette, need_sort_palette, variable_space, font_name, output_dir):
         """Конструктор класса"""
         # Проверка на наличие токого файла
         if not os.path.exists(path):
             raise Exception("По данному пути ничего не найдено")
+        if not os.path.isdir(output_dir):
+            raise Exception("Папка вдля вывода результатов не является папкой")
         if font_size <= 0:
             raise Exception("Размер шрифта не может быть меньше или равен нулю")
         if not os.path.exists(f"fonts\\{font_name}.ttf"):
@@ -22,12 +24,14 @@ class ArtConverter:
             path = path.replace("/", "\\")
         # Путь до файла
         self.path = path
+        # Папка, где сохранятся результаты
+        self.output_dir = output_dir
         # Имя файла
         self.file_name = path.split("\\")[-1].split(".")[0]
         # Расширение файла
         self.expansion = path.split("\\")[-1].split(".")[1]
         # Проверка, что входной файл подходт по расширению
-        if self.expansion not in ["jpg"]:
+        if self.expansion not in ["jpg", "jpeg", "png"]:
             raise Exception(f"Расширение {self.expansion} не обрабатывается")
         # Получаем изображение как спсисок списков, состояших из номеров цвета пикселей
         self.image = self.get_image()
@@ -81,4 +85,4 @@ class ArtConverter:
             for y in range(0, self.height, self.char_step):
                 draw.text((x, y), self.ascii_chars[char_indices[x, y]], font=self.font, fill="white")
         # Сохранение изображения
-        self.pil_image.save("output_images\\" + self.file_name + "_converted." + self.expansion)
+        self.pil_image.save(f"{self.output_dir}\\{self.file_name}_converted.{self.expansion}")

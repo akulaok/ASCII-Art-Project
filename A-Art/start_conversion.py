@@ -12,6 +12,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--variable_space", action="store_false",
                         help="Добавление пробела в палитру ascii-символов")
     parser.add_argument("-c", "--choose_font", default="Roboto-BoldItalic", help="Имя шрифта без расширения и пути")
+    parser.add_argument("-o", "--output_directory", default="output_images",
+                        help="Путь до папки, где нужно сохранить результаты")
     arg = parser.parse_args()
     ArtConverter(arg.path, arg.font_size, arg.ascii_palette, arg.need_sort_palette,
-                 arg.variable_space, arg.choose_font).draw_converted_image()
+                 arg.variable_space, arg.choose_font, arg.output_directory).draw_converted_image()
